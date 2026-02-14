@@ -20,15 +20,17 @@ class OneLayer:
 
 class TwoLayer:
     def __init__(self, generator: np.random.Generator = np.random.default_rng()):
-        self.w111 = Value(generator.normal(loc=0.5, scale=0.5), name='w111')
-        self.w112 = Value(generator.normal(loc=0.5, scale=0.5), name='w112')
-        self.w121 = Value(generator.normal(loc=0.5, scale=0.5), name='w121')
-        self.w122 = Value(generator.normal(loc=0.5, scale=0.5), name='w122')
+        def rand():
+            return generator.normal(loc=0.5, scale=0.1)
+        self.w111 = Value(rand(), name='w111')
+        self.w112 = Value(rand(), name='w112')
+        self.w121 = Value(rand(), name='w121')
+        self.w122 = Value(rand(), name='w122')
         self.b11 = Value(.0, name='b11')
         self.b12 = Value(.0, name='b12')
 
-        self.w21 = Value(generator.normal(loc=0.5, scale=0.5), name='w21')
-        self.w22 = Value(generator.normal(loc=0.5, scale=0.5), name='w22')
+        self.w21 = Value(rand(), name='w21')
+        self.w22 = Value(rand(), name='w22')
         self.b2 = Value(.0, name='b2')
 
         self._parameters = [self.w111, self.w112, self.w121, self.w122, self.b11, self.b12, self.w21, self.w22, self.b2]

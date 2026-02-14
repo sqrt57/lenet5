@@ -87,10 +87,13 @@ seed = 12345
 features = logic_data.features
 targets = logic_data.targets_xor
 model = logic_net.TwoLayer
-nepochs = 30000
+nepochs = 10000
 scenarios = [
-    Hyper(name="Adam", seed=seed, features=features, targets=targets, model=model, optimizer=ag.Adam, lr=0.01, nepochs=nepochs),
-    Hyper(name="AdamW", seed=seed, features=features, targets=targets, model=model, optimizer=ag.AdamW, lr=0.01, nepochs=nepochs),
+    Hyper(name="s0", seed=seed, features=features, targets=targets, model=model, optimizer=ag.Adam, lr=0.01, nepochs=nepochs),
+    Hyper(name="s1", seed=420083464, features=features, targets=targets, model=model, optimizer=ag.Adam, lr=0.01, nepochs=nepochs),
+    Hyper(name="s2", seed=555137262, features=features, targets=targets, model=model, optimizer=ag.Adam, lr=0.01, nepochs=nepochs),
+    Hyper(name="s3", seed=605492662, features=features, targets=targets, model=model, optimizer=ag.Adam, lr=0.01, nepochs=nepochs),
+    Hyper(name="s4", seed=713831756, features=features, targets=targets, model=model, optimizer=ag.Adam, lr=0.01, nepochs=nepochs),
 ]
 
 # %%
@@ -129,6 +132,7 @@ for scenario in scenarios:
 fig, axes = plt.subplots()
 for result in results:
     axes.plot(result.epochs, result.losses, label=result.hyper.name)
+axes.set_xscale("log")
 axes.set_xlabel("Epoch")
 axes.set_ylabel("Loss")
 axes.set_title("Loss vs Epoch")
@@ -136,13 +140,13 @@ axes.legend()
 plt.show()
 
 # %%
-results[0].result_table
+results[2].result_table
 
 # %%
-results[1].result_table
+results[3].result_table
 
 # %%
-results[0].model.parameters()
+results[2].model.parameters()
 
 # %%
-results[1].model.parameters()
+results[3].model.parameters()
