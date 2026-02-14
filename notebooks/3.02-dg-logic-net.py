@@ -17,25 +17,27 @@ import sys
 sys.path.append("..")
 
 # %%
+
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import lenet5.modeling.logic_net as net
+import lenet5.modeling.logic_net_02 as net_02
+import lenet5.data.logic as logic_data
 
 # %%
 x = np.linspace(-2, 3, 100)
 fig, ax = plt.subplots()
-ax.plot(x, net.activation(x), label="act")
-ax.plot(x, net.activation_derivative(x), label="d act/dx")
+ax.plot(x, net_02.activation(x), label="act")
+ax.plot(x, net_02.activation_derivative(x), label="d act/dx")
 ax.grid()
 ax.legend()
 plt.show()
 
 # %%
-targets = net.targets_xor
+targets = logic_data.targets_xor
 train_schedule = [
     (1000, 0.05),
     (100, .5),
@@ -48,7 +50,7 @@ seed = 12345
 
 # %%
 np.random.seed(seed)
-model = net.OneLayerBatch()
+model = net_02.OneLayerBatch()
 print(model.weights)
 print(model.bias)
 
@@ -57,15 +59,15 @@ epochs = []
 losses = []
 corrects = []
 
-pred = model.forward(net.features)
+pred = model.forward(logic_data.features)
 epochs.append(epoch)
-losses.append(net.loss(pred, targets))
-corrects.append(net.correct_percent(pred, targets))
+losses.append(net_02.loss(pred, targets))
+corrects.append(net_02.correct_percent(pred, targets))
 
-print(net.result_table(model, net.features, targets))
-loss = net.loss(model.forward(net.features), targets)
+print(net_02.result_table(model, logic_data.features, targets))
+loss = net_02.loss(model.forward(logic_data.features), targets)
 print(f"Loss: {loss:.6f}")
-loss_derivative = net.loss_derivative(model.forward(net.features), targets)
+loss_derivative = net_02.loss_derivative(model.forward(logic_data.features), targets)
 print(loss_derivative)
 
 for (n_epochs, lr) in train_schedule:
@@ -73,20 +75,20 @@ for (n_epochs, lr) in train_schedule:
         epoch += 1
         
         model.zero_grad()
-        pred = model.forward(net.features)
-        model.backward(net.loss_derivative(pred, targets))
+        pred = model.forward(logic_data.features)
+        model.backward(net_02.loss_derivative(pred, targets))
         model.subtract_grad(lr)
 
-        pred = model.forward(net.features)
+        pred = model.forward(logic_data.features)
         epochs.append(epoch)
-        losses.append(net.loss(pred, targets))
-        corrects.append(net.correct_percent(pred, targets))
+        losses.append(net_02.loss(pred, targets))
+        corrects.append(net_02.correct_percent(pred, targets))
 
 print()
 print(model.weights)
 print(model.bias)
-print(net.result_table(model, net.features, targets))
-loss = net.loss(model.forward(net.features), targets)
+print(net_02.result_table(model, logic_data.features, targets))
+loss = net_02.loss(model.forward(logic_data.features), targets)
 print(f"Loss: {loss:.6f}")
 
 # %%
@@ -101,7 +103,7 @@ plt.show()
 
 # %%
 np.random.seed(seed)
-model = net.TwoLayerBatch()
+model = net_02.TwoLayerBatch()
 # model.weights1 = np.array([[1., -1.], [-1., 1.]])
 # model.bias1 = np.array([0., 0.])
 
@@ -123,10 +125,10 @@ biases1_gradient = []
 weights2_gradient = []
 biases2_gradient = []
 
-pred = model.forward(net.features)
+pred = model.forward(logic_data.features)
 epochs.append(epoch)
-losses.append(net.loss(pred, targets))
-corrects.append(net.correct_percent(pred, targets))
+losses.append(net_02.loss(pred, targets))
+corrects.append(net_02.correct_percent(pred, targets))
 
 weights1.append(model.weights1.copy())
 biases1.append(model.bias1.copy())
@@ -137,10 +139,10 @@ biases1_gradient.append(model.bias1_grad.copy())
 weights2_gradient.append(model.weights2_grad.copy())
 biases2_gradient.append(model.bias2_grad.copy())
 
-print(net.result_table(model, net.features, targets))
-loss = net.loss(model.forward(net.features), targets)
+print(net_02.result_table(model, logic_data.features, targets))
+loss = net_02.loss(model.forward(logic_data.features), targets)
 print(f"Loss: {loss:.6f}")
-loss_derivative = net.loss_derivative(model.forward(net.features), targets)
+loss_derivative = net_02.loss_derivative(model.forward(logic_data.features), targets)
 print(loss_derivative)
 
 for (n_epochs, lr) in train_schedule:
@@ -148,14 +150,14 @@ for (n_epochs, lr) in train_schedule:
         epoch += 1
         
         model.zero_grad()
-        pred = model.forward(net.features)
-        model.backward(net.loss_derivative(pred, targets))
+        pred = model.forward(logic_data.features)
+        model.backward(net_02.loss_derivative(pred, targets))
         model.subtract_grad(lr)
 
-        pred = model.forward(net.features)
+        pred = model.forward(logic_data.features)
         epochs.append(epoch)
-        losses.append(net.loss(pred, targets))
-        corrects.append(net.correct_percent(pred, targets))
+        losses.append(net_02.loss(pred, targets))
+        corrects.append(net_02.correct_percent(pred, targets))
 
         weights1.append(model.weights1.copy())
         biases1.append(model.bias1.copy())
@@ -171,8 +173,8 @@ print(model.weights1)
 print(model.bias1)
 print(model.weights2)
 print(model.bias2)
-print(net.result_table(model, net.features, targets))
-loss = net.loss(model.forward(net.features), targets)
+print(net_02.result_table(model, logic_data.features, targets))
+loss = net_02.loss(model.forward(logic_data.features), targets)
 print(f"Loss: {loss:.6f}")
 
 # %%
@@ -182,7 +184,7 @@ print(model.weights2_grad)
 print(model.bias2_grad)
 
 # %%
-net.loss_derivative(model.forward(net.features), targets)
+net_02.loss_derivative(model.forward(logic_data.features), targets)
 
 # %%
 fig, ax = plt.subplots()

@@ -1,13 +1,6 @@
 import numpy as np
 import pandas as pd
 
-features = np.array([[0.,0.],[1.,0.],[0.,1.],[1.,1.]])
-targets_and = np.array([[0.],[0.],[0.],[1.]])
-targets_or = np.array([[0.],[1.],[1.],[1.]])
-targets_xor = np.array([[0.],[1.],[1.],[0.]])
-targets_and_not = np.array([[1.],[1.],[1.],[0.]])
-targets_or_not = np.array([[1.],[0.],[0.],[0.]])
-
 def activation(x: np.array) -> np.array:
     return np.tanh(2*(x-0.5)) / (2 * np.tanh(2 * 0.5)) + 0.5
 
