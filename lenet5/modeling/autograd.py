@@ -279,9 +279,9 @@ class AdamW:
     def step(self):
         self.t += 1
         for i, param in enumerate(self.parameters):
-            g = param.grad + self.weight_decay * param.value
+            g = param.grad
             self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * g
             self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * g * g
             m_hat = self.m[i] / (1 - self.beta1 ** self.t)
             v_hat = self.v[i] / (1 - self.beta2 ** self.t)
-            param.value -= self.lr * m_hat / (math.sqrt(v_hat) + self.epsilon)
+            param.value -= self.lr * (m_hat / (math.sqrt(v_hat) + self.epsilon) + self.weight_decay * param.value)

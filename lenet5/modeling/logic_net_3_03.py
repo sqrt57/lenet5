@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import lenet5.modeling.autograd as ag
 from lenet5.modeling.autograd import Value
 
@@ -19,9 +20,9 @@ class OneLayer:
         return activation(self.w1 * x1 + self.w2 * x2 + self.b)
 
 class TwoLayer:
-    def __init__(self, generator: np.random.Generator = np.random.default_rng()):
-        def rand():
-            return generator.normal(loc=0.5, scale=0.1)
+    def __init__(self, rand = None):
+        if rand is None:
+            rand = lambda: np.random.normal(loc=0.5, scale=0.5)
         self.w111 = Value(rand(), name='w111')
         self.w112 = Value(rand(), name='w112')
         self.w121 = Value(rand(), name='w121')
@@ -64,3 +65,42 @@ class MiniTwoLayer:
         h = activation(self.w0 + self.w1 * x1 + self.w2 * x2)
         y = activation(self.u0 + self.u1 * x1 + self.u2 * x2 + self.v * h)
         return y
+
+def mse_loss(pred, target):
+    return (pred - target)**2
+
+def train_epoch(model, loss_fn, features, targets):
+    for i in range(features.shape[0]):
+        pred = model.forward(features[i,0].item(), features[i,1].item())
+        loss = loss_fn(pred, targets[i].item()) / features.shape[0]
+        loss.backward()
+
+def to_logic(x: float) -> bool:
+    return x > 0.5
+
+def predict(model, features):
+    result = []
+    for i in range(features.shape[0]):
+        pred = Value.unwrap(model.forward(features[i,0].item(), features[i,1].item()))
+        result.append(pred)
+    return result
+
+def result_table(features, pred: list, targets: np.array):
+    df = pd.DataFrame(features, columns=["in1", "in2"])
+    df["pred_raw"] = pred
+    df["pred"] = [to_logic(p) for p in pred]
+    df["target"] = pd.Series(targets.flatten()).map(to_logic)
+    return df
+
+def calc_loss(loss_fn, pred: list, target: np.array):
+    loss = 0.
+    for i in range(len(pred)):
+        loss += loss_fn(pred[i], target[i])
+    return loss / len(pred)
+
+def calc_accuracy(pred: list, target: np.array):
+    correct = 0
+    for i in range(len(pred)):
+        if to_logic(pred[i]) == to_logic(target[i].item()):
+            correct += 1
+    return correct / len(pred)

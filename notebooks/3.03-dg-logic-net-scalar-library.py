@@ -28,38 +28,8 @@ import matplotlib.pyplot as plt
 import lenet5.data.logic as logic_data
 import lenet5.modeling.autograd as ag
 from lenet5.modeling.autograd import Value
-import lenet5.modeling.logic_net_03 as logic_net
-
-# %%
-def to_logic(x: float) -> bool:
-    return x > 0.5
-
-def predict(model, features):
-    result = []
-    for i in range(features.shape[0]):
-        pred = Value.unwrap(model.forward(features[i,0].item(), features[i,1].item()))
-        result.append(pred)
-    return result
-
-def result_table(features, pred: list, targets: np.array):
-    df = pd.DataFrame(features, columns=["in1", "in2"])
-    df["pred_raw"] = pred
-    df["pred"] = [to_logic(p) for p in pred]
-    df["target"] = pd.Series(targets.flatten()).map(to_logic)
-    return df
-
-def calc_loss(pred: list, target: np.array):
-    loss = 0.
-    for i in range(len(pred)):
-        loss += (pred[i] - target[i].item()) ** 2
-    return loss / len(pred)
-
-def calc_accuracy(pred: list, target: np.array):
-    correct = 0
-    for i in range(len(pred)):
-        if to_logic(pred[i]) == to_logic(target[i].item()):
-            correct += 1
-    return correct / len(pred)
+import lenet5.modeling.logic_net_3_03 as logic_net
+from lenet5.modeling.logic_net_3_03 import to_logic, predict, result_table, calc_loss, calc_accuracy, mse_loss, train_epoch
 
 # %%
 class Hyper:
@@ -99,8 +69,9 @@ scenarios = [
 # %%
 def run_scenario(params: Hyper) -> Result:
     print(f"Running scenario: seed={params.seed}, model={params.model.__name__}, optimizer={params.optimizer.__name__}, lr={params.lr}, nepochs={params.nepochs}")
-    generator = np.random.default_rng(params.seed)
-    model = params.model(generator)
+    def rand(): return np.random.normal(loc=0.5, scale=0.5)
+    np.random.seed(params.seed)
+    model = params.model(rand)
     optimizer = params.optimizer(model.parameters(), lr=params.lr)
 
     epochs = []
@@ -109,13 +80,11 @@ def run_scenario(params: Hyper) -> Result:
 
     for epoch in tqdm(range(params.nepochs)):
         optimizer.zero_grad()
-        for i in range(params.features.shape[0]):
-            pred = model.forward(params.features[i,0].item(), params.features[i,1].item())
-            loss = (pred - params.targets[i].item()) ** 2
-            loss.backward()
+        train_epoch(model, mse_loss, features, targets)
         optimizer.step()
+
         pred = predict(model, params.features)
-        loss = calc_loss(pred, params.targets)
+        loss = calc_loss(mse_loss, pred, params.targets)
         acc = calc_accuracy(pred, params.targets)
         epochs.append(epoch)
         losses.append(loss)
@@ -150,3 +119,5 @@ results[2].model.parameters()
 
 # %%
 results[3].model.parameters()
+
+# %%
