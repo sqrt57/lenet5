@@ -1,14 +1,22 @@
 from pathlib import Path
 import numpy as np
+import torch
 from PIL import Image
 
 preprocessing_seed = 600789589
 
 class DataSet:
-    def __init__(self, features: np.array, labels: np.array, metadata: list[dict[str, any]]):
+    def __init__(self, features: np.array | torch.Tensor,
+                 labels: np.array | torch.Tensor,
+                 metadata: list[dict[str, any]]):
         self.features = features
         self.labels = labels
         self.metadata = metadata
+    
+    def torch32(self):
+        return DataSet(torch.from_numpy(self.features).float()[:,None,:,:],
+                       torch.from_numpy(self.labels).byte(),
+                       self.metadata)
 
 def load_raw_data(path: Path) -> DataSet:
     features_list = []
