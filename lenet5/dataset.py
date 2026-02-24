@@ -15,7 +15,7 @@ class DataSet:
     
     def torch32(self):
         return DataSet(torch.from_numpy(self.features).float()[:,None,:,:],
-                       torch.from_numpy(self.labels).byte(),
+                       torch.from_numpy(self.labels).long(),
                        self.metadata)
 
 def load_raw_data(path: Path) -> DataSet:
